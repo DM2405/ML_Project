@@ -14,31 +14,31 @@ jobs:
     runs-on: ubuntu-latest  # run on ubuntu
 
     services:
-  mysql:
-    image: mysql:8.0
-    env:
-      MYSQL_ROOT_PASSWORD: Pune%40123
-      MYSQL_DATABASE: shoppers_db
-    ports:
-      - 3306:3306
-    options: >-
-      --health-cmd="mysqladmin ping"
-      --health-interval=10s
-      --health-timeout=5s
-      --health-retries=3
+      mysql:  # start mysql service for testing
+        image: mysql:8.0  # mysql version
+        env:
+          MYSQL_ROOT_PASSWORD: Pune%40123  # root password
+          MYSQL_DATABASE: shoppers_db      # database name
+        ports:
+          - 3306:3306  # expose mysql port
+        options: >-
+          --health-cmd="mysqladmin ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
 
-  postgres:
-    image: postgres:15
-    env:
-      POSTGRES_PASSWORD: 12345
-      POSTGRES_DB: "Shoppers warehouse"
-    ports:
-      - 5432:5432
-    options: >-
-      --health-cmd="pg_isready"
-      --health-interval=10s
-      --health-timeout=5s
-      --health-retries=3
+      postgres:  # start postgresql service for warehouse
+        image: postgres:15  # postgresql version
+        env:
+          POSTGRES_PASSWORD: 12345  # postgres password
+          POSTGRES_DB: "Shoppers_warehouse"  # warehouse database name
+        ports:
+          - 5432:5432  # expose postgresql port
+        options: >-
+          --health-cmd="pg_isready"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
 
     steps:
       - name: Checkout code  # clone repo
@@ -54,18 +54,18 @@ jobs:
 
       - name: Setup database and train model  # load data and train model
         env:
-          DB_HOST: 127.0.0.1  # mysql host
-          DB_PORT: 3306  # mysql port
-          DB_USER: root  # mysql user
-          DB_PASSWORD: Pune%40123  # mysql password
-          DB_NAME: shoppers_db  # mysql database
-          PG_HOST: 127.0.0.1  # postgresql host
-          PG_PORT: 5432  # postgresql port
-          PG_USER: postgres  # postgresql user
-          PG_PASSWORD: 12345   # postgresql password
-          PG_NAME: shoppers warehouse  # postgresql database
-          MLFLOW_TRACKING_URI: ./mlruns  # mlflow tracking uri
-          MODEL_PATH: ./ml/model.pkl  # model save path
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_USER: root
+          DB_PASSWORD: Pune%40123
+          DB_NAME: shoppers_db
+          PG_HOST: 127.0.0.1
+          PG_PORT: 5432
+          PG_USER: postgres
+          PG_PASSWORD: 12345
+          PG_NAME: "Shoppers_warehouse"
+          MLFLOW_TRACKING_URI: ./mlruns
+          MODEL_PATH: ./ml/model.pkl
         run: |
           python data/reload_data.py
           python etl/load.py
@@ -73,19 +73,19 @@ jobs:
 
       - name: Run pytest  # run all tests
         env:
-          DB_HOST: 127.0.0.1  # mysql host
-          DB_PORT: 3306  # mysql port
-          DB_USER: root  # mysql user
-          DB_PASSWORD: Pune%40123  # mysql password
-          DB_NAME: shoppers_db  # mysql database
-          PG_HOST: 127.0.0.1  # postgresql host
-          PG_PORT: 5432  # postgresql port
-          PG_USER: postgres  # postgresql user
-          PG_PASSWORD: 12345  # postgresql password
-          PG_NAME: shoppers warehouse  # postgresql database
-          MLFLOW_TRACKING_URI: ./mlruns  # mlflow tracking uri
-          MODEL_PATH: ./ml/model.pkl  # model save path
-        run: pytest tests/test_api.py -v  # run tests with verbose output
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_USER: root
+          DB_PASSWORD: Pune%40123
+          DB_NAME: shoppers_db
+          PG_HOST: 127.0.0.1
+          PG_PORT: 5432
+          PG_USER: postgres
+          PG_PASSWORD: 12345
+          PG_NAME: "Shoppers_warehouse"
+          MLFLOW_TRACKING_URI: ./mlruns
+          MODEL_PATH: ./ml/model.pkl
+        run: pytest tests/test_api.py -v
 
   build-and-push:
     name: Build and Push Docker Image  # job name
@@ -97,14 +97,14 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Login to Docker Hub  # login to docker hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_USERNAME  }}  # docker hub username
-          password: ${{ secrets.DOCKER_TOKEN }}  # docker hub token
+          username: ${{ secrets.DOCKER_USERNAME }}  # docker hub username
+          password: ${{ secrets.DOCKER_TOKEN }}     # docker hub token
 
       - name: Build and Push Docker image  # build and push image
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v4
         with:
           context: .  # build context is root directory
           push: true  # push to docker hub
-          tags: ${{ secrets.DOCKER_USERNAME }}/shoppers-ml:latest  # image taggit reset HEAD~1 
+          tags: ${{ secrets.DOCKER_USERNAME }}/shoppers-ml:latest
