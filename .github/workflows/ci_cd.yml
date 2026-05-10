@@ -53,12 +53,12 @@ jobs:
       - name: Setup database and train model
         env:
           DB_USER: root
-          DB_PASSWORD: Pune@123
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
           DB_HOST: 127.0.0.1
           DB_PORT: 3306
           DB_NAME: shoppers_db
           PG_USER: postgres
-          PG_PASSWORD: 12345
+          PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
           PG_HOST: 127.0.0.1
           PG_PORT: 5432
           PG_NAME: Shoppers_warehouse
