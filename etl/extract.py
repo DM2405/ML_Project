@@ -20,7 +20,7 @@ def extract_data():
     df = pd.read_sql("SELECT * FROM online_shoppers", engine)  # fetch all rows from table
     print(f"Extracted {len(df)} rows")  # log how many rows fetched
     return df  # return dataframe
-python etl/extract.py
+
 if __name__ == "__main__":
     df = extract_data()  # run extraction
     print(df.head())  # print first 5 rows to verify
