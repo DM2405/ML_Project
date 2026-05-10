@@ -17,7 +17,8 @@ jobs:
       mysql:  # start mysql service for testing
         image: mysql:8.0  # mysql version
         env:
-          MYSQL_ROOT_PASSWORD: Pune%40123  # root password
+          
+          MYSQL_ROOT_PASSWORD: Pune@123 # root password
           MYSQL_DATABASE: shoppers_db      # database name
         ports:
           - 3306:3306  # expose mysql port
@@ -30,6 +31,7 @@ jobs:
       postgres:  # start postgresql service for warehouse
         image: postgres:15  # postgresql version
         env:
+          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: 12345  # postgres password
           POSTGRES_DB: "Shoppers_warehouse"  # warehouse database name
         ports:
@@ -57,7 +59,7 @@ jobs:
           DB_HOST: 127.0.0.1
           DB_PORT: 3306
           DB_USER: root
-          DB_PASSWORD: Pune%40123
+          DB_PASSWORD: Pune@123
           DB_NAME: shoppers_db
           PG_HOST: 127.0.0.1
           PG_PORT: 5432
@@ -76,7 +78,7 @@ jobs:
           DB_HOST: 127.0.0.1
           DB_PORT: 3306
           DB_USER: root
-          DB_PASSWORD: Pune%40123
+          DB_PASSWORD: Pune@123
           DB_NAME: shoppers_db
           PG_HOST: 127.0.0.1
           PG_PORT: 5432
