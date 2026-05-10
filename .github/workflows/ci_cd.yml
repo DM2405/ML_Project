@@ -19,24 +19,24 @@ jobs:
         ports:
           - 3306:3306
         options: >-
-          --health-cmd="mysqladmin ping -h localhost -u root -p Pune@123"
+          --health-cmd="mysqladmin ping -h localhost -u root -p${{ secrets.DB_PASSWORD }}"
           --health-interval=10s
           --health-timeout=5s
-          --health-retries=3
+          --health-retries=10
 
       postgres:
         image: postgres:15
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: ${{ secrets.PG_PASSWORD }}
-          POSTGRES_DB: Shoppers_warehouse
+          POSTGRES_DB: Shoppers warehouse
         ports:
           - 5432:5432
         options: >-
           --health-cmd="pg_isready -U postgres"
           --health-interval=10s
           --health-timeout=5s
-          --health-retries=3
+          --health-retries=10
 
     steps:
       - name: Checkout code
@@ -57,11 +57,13 @@ jobs:
           DB_HOST: 127.0.0.1
           DB_PORT: 3306
           DB_NAME: shoppers_db
+
           PG_USER: postgres
           PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
           PG_HOST: 127.0.0.1
           PG_PORT: 5432
-          PG_NAME: Shoppers_warehouse
+          PG_NAME: Shoppers warehouse
+
           MLFLOW_TRACKING_URI: ./mlruns
           MODEL_PATH: ./ml/model.pkl
         run: |
@@ -70,6 +72,21 @@ jobs:
           python ml/train.py
 
       - name: Run pytest
+        env:
+          DB_USER: root
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_NAME: shoppers_db
+
+          PG_USER: postgres
+          PG_PASSWORD: ${{ secrets.PG_PASSWORD }}
+          PG_HOST: 127.0.0.1
+          PG_PORT: 5432
+          PG_NAME: Shoppers warehouse
+
+          MLFLOW_TRACKING_URI: ./mlruns
+          MODEL_PATH: ./ml/model.pkl
         run: pytest tests/test_api.py -v
 
   build-and-push:
