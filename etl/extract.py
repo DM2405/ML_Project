@@ -1,26 +1,41 @@
-# This file extracts raw data from MySQL database
+# Extract data from MySQL
 
-import pandas as pd  # data manipulation library
-from sqlalchemy import create_engine  # database connection engine
-from dotenv import load_dotenv  # load environment variables from .env file
-import os  # access environment variables
+import pandas as pd
+from sqlalchemy import create_engine
+from dotenv import load_dotenv
+from urllib.parse import quote_plus
+import os
 
-load_dotenv()  # load .env file variables into environment
+load_dotenv()
 
 def get_engine():
-    # build mysql connection string using env variables
-    url = (
-        f"mysql+pymysql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}"
-        f"@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
+
+    DB_USER = os.getenv("DB_USER")
+    DB_PASSWORD = quote_plus(os.getenv("DB_PASSWORD"))
+    DB_HOST = os.getenv("DB_HOST")
+    DB_PORT = os.getenv("DB_PORT")
+    DB_NAME = os.getenv("DB_NAME")
+
+    DATABASE_URL = (
+        f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}"
+        f"@{DB_HOST}:{DB_PORT}/{DB_NAME}"
     )
-    return create_engine(url)  # return sqlalchemy engine object
+
+    print(DATABASE_URL)
+
+    engine = create_engine(DATABASE_URL)
+
+    return engine
 
 def extract_data():
-    engine = get_engine()  # get database connection
-    df = pd.read_sql("SELECT * FROM online_shoppers", engine)  # fetch all rows from table
-    print(f"Extracted {len(df)} rows")  # log how many rows fetched
-    return df  # return dataframe
 
-if __name__ == "__main__":
-    df = extract_data()  # run extraction
-    print(df.head())  # print first 5 rows to verify
+    engine = get_engine()
+
+    df = pd.read_sql(
+        "SELECT * FROM online_shoppers",
+        engine
+    )
+
+    print(f"Extracted {len(df)} rows from MySQL")
+
+    return df
