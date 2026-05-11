@@ -1,29 +1,35 @@
-# This file loads CSV data into MySQL with correct TRUE/FALSE conversion
+import os
+import pandas as pd
+from sqlalchemy import create_engine
+from urllib.parse import quote_plus
 
-import pandas as pd  # data manipulation
-from sqlalchemy import create_engine  # database connection
-from dotenv import load_dotenv  # load env variables
-import os  # access env variables
+# environment variables
+DB_USER = os.getenv("DB_USER")
+DB_PASSWORD = quote_plus(os.getenv("DB_PASSWORD"))
+DB_HOST = os.getenv("DB_HOST")
+DB_PORT = os.getenv("DB_PORT")
+DB_NAME = os.getenv("DB_NAME")
 
-load_dotenv()  # load .env file
+# mysql connection
+DATABASE_URL = (
+    f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}"
+    f"@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+)
 
-def get_engine():
-    # build mysql connection string
-    url = (
-        f"mysql+pymysql://{os.getenv('DB_USER')}:{os.getenv('DB_PASSWORD')}"
-        f"@{os.getenv('DB_HOST')}:{os.getenv('DB_PORT')}/{os.getenv('DB_NAME')}"
-    )
-    return create_engine(url)  # return engine
+print(DATABASE_URL)
+
+engine = create_engine(DATABASE_URL)
 
 def reload():
-    engine = get_engine()  # get db connection
-    df = pd.read_csv("data/online_shoppers_intention.csv")  # read csv file
-    # convert Weekend and Revenue to int — handle multiple formats
-    df['Weekend'] = df['Weekend'].astype(str).str.strip().str.upper().map({'TRUE': 1, 'FALSE': 0})  # convert Weekend to int
-    df['Revenue'] = df['Revenue'].astype(str).str.strip().str.upper().map({'TRUE': 1, 'FALSE': 0})  # convert Revenue to int
-    df.to_sql('online_shoppers', engine, if_exists='replace', index=False)  # load to mysql
-    print(f"Loaded {len(df)} rows")  # log count
-    print(df['Revenue'].value_counts())  # verify Revenue distribution
+    df = pd.read_csv("data/online_shoppers_intention.csv")
 
-if __name__ == "__main__":
-    reload()  # run reload
+    df.to_sql(
+        "online_shoppers",
+        engine,
+        if_exists="replace",
+        index=False
+    )
+
+    print("Data loaded successfully!")
+
+reload()
