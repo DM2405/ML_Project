@@ -20,13 +20,13 @@ def get_mysql_engine():
     return create_engine(url)
 
 def get_pg_engine():
-    # build postgresql connection string for data warehouse
+
     url = (
         f"postgresql+psycopg2://{os.getenv('PG_USER')}:{quote_plus(os.getenv('PG_PASSWORD'))}"
-        f"@{os.getenv('PG_HOST')}:{os.getenv('PG_PORT')}/{quote_plus(os.getenv('PG_NAME'))}"
+        f"@{os.getenv('PG_HOST')}:{os.getenv('PG_PORT')}/{os.getenv('PG_NAME')}"
     )
 
-    print(url)  # temporary debug
+    print(url)
 
     return create_engine(url)
 
